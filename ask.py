@@ -1,9 +1,11 @@
+import re
 import sys
 import json
 from datetime import datetime
 
 import ollama
 import chromadb
+from rank_bm25 import BM25Okapi
 
 import config
 from llm import ask_llm
@@ -31,7 +33,7 @@ def rewrite_query(question):
 
 
 def search(collection, text, n):
-    """One vector search: text -> numbers -> closest chunks."""
+    """Meaning-based search: text -> numbers -> closest chunks."""
     vector = ollama.embed(
         model=config.EMBED_MODEL,
         input=f"search_query: {text}",
@@ -40,22 +42,48 @@ def search(collection, text, n):
     return list(zip(r["ids"][0], r["documents"][0], r["metadatas"][0], r["distances"][0]))
 
 
+def tokenize(text):
+    """Lowercase words and numbers, e.g. 'Initial detection ($5,000)' -> ['initial','detection','$5,000']."""
+    return re.findall(r"[a-z0-9$,]+", text.lower())
+
+
+_bm25 = None
+_all_chunks = []
+
+
+def keyword_search(collection, text, n):
+    """Exact-word search (BM25). Built once from all chunks, then reused."""
+    global _bm25, _all_chunks
+    if _bm25 is None:
+        data = collection.get(include=["documents", "metadatas"])
+        _all_chunks = list(zip(data["ids"], data["documents"], data["metadatas"]))
+        _bm25 = BM25Okapi([tokenize(doc) for _, doc, _ in _all_chunks])
+    scores = _bm25.get_scores(tokenize(text))
+    ranked = sorted(range(len(_all_chunks)), key=lambda i: scores[i], reverse=True)[:n]
+    # BM25 has no 'distance', so mark these with None
+    return [(_all_chunks[i][0], _all_chunks[i][1], _all_chunks[i][2], None) for i in ranked]
+
+
 def retrieve(collection, question, top_k=config.TOP_K, extra=4, show_rewrite=False):
-    """Keep the original search results; let the rewrite only ADD new chunks."""
+    """Meaning search first; rewrite and keyword search can only ADD new chunks."""
     hits = search(collection, question, top_k)
     seen = {h[0] for h in hits}
+
+    def add_new(candidates):
+        added = 0
+        for hit in candidates:
+            if hit[0] not in seen and added < extra:
+                hits.append(hit)
+                seen.add(hit[0])
+                added += 1
 
     rewritten = rewrite_query(question)
     if show_rewrite:
         print(f"(also searched as: {rewritten})")
-
-    added = 0
-    for hit in search(collection, rewritten, top_k):
-        if hit[0] not in seen and added < extra:
-            hits.append(hit)
-            seen.add(hit[0])
-            added += 1
+    add_new(search(collection, rewritten, top_k))      # extra chunks from the rewrite
+    add_new(keyword_search(collection, question, top_k))  # extra chunks from exact words
     return hits
+
 
 def build_prompt(question, hits):
     """Number each chunk so the model can cite it as [1], [2], ..."""
@@ -98,7 +126,8 @@ def main():
         print(answer)
         print("\n--- SOURCES ---")
         for n, (_, text, meta, dist) in enumerate(hits, start=1):
-            print(f"[{n}] {meta['source']}, page {meta['page']}  (distance {dist:.3f}, lower = closer)")
+            how = f"distance {dist:.3f}" if dist is not None else "keyword match"
+            print(f"[{n}] {meta['source']}, page {meta['page']}  ({how})")
             if show_context:
                 print(f"    {text[:400]}...\n")
         print()
