@@ -7,6 +7,20 @@
   {"question": "Must the board of directors be notified of SAR filings?", "expected_pages": [14], "keywords": ["board"], "should_refuse": false},
   {"question": "Does notifying law enforcement remove the obligation to file a SAR?", "expected_pages": [13], "keywords": ["not"], "should_refuse": false},
   {"question": "Can a bank share a SAR with its foreign branches?", "expected_pages": [17], "keywords": ["not"], "should_refuse": false},
+  {"question": "What is the filing deadline for a SAR on continuing activity?", "expected_pages": [11, 12], "keywords": ["120"], "should_refuse": false},
+  {"question": "Does an alert from an automated monitoring system count as the initial detection of suspicious activity?", "expected_pages": [12], "keywords": ["not"], "should_refuse": false},
+  {"question": "Who should a bank contact at law enforcement when a violation needs immediate attention?", "expected_pages": [13], "keywords": ["FBI"], "should_refuse": false},
+  {"question": "Does a bank have to give the board actual copies of every SAR?", "expected_pages": [14], "keywords": ["not required"], "should_refuse": false},
+  {"question": "Can SAR copies be stored electronically?", "expected_pages": [15], "keywords": ["electronic"], "should_refuse": false},
+  {"question": "Must a bank hand over SAR supporting documents if FinCEN asks for them?", "expected_pages": [15], "keywords": ["request"], "should_refuse": false},
+  {"question": "Is a specific form of documentation required when a bank decides not to file a SAR?", "expected_pages": [10], "keywords": ["no"], "should_refuse": false},
+  {"question": "What should examiners focus on when reviewing a bank's SAR decisions?", "expected_pages": [10], "keywords": ["process"], "should_refuse": false},
+  {"question": "What are examples of filtering reports banks use to identify unusual currency transactions?", "expected_pages": [6], "keywords": ["aggregat"], "should_refuse": false},
+  {"question": "What is the SAR filing threshold when a suspect can be identified?", "expected_pages": [1], "keywords": ["5,000"], "should_refuse": false},
+  {"question": "Above what amount must a SAR be filed even if no suspect is identified?", "expected_pages": [1], "keywords": ["25,000"], "should_refuse": false},
+  {"question": "Is there a minimum dollar amount for filing a SAR on insider abuse?", "expected_pages": [1], "keywords": ["any amount"], "should_refuse": false},
   {"question": "What is the interest rate on a savings account?", "expected_pages": [], "keywords": [], "should_refuse": true},
-  {"question": "Who is the CEO of JPMorgan Chase?", "expected_pages": [], "keywords": [], "should_refuse": true}
+  {"question": "Who is the CEO of JPMorgan Chase?", "expected_pages": [], "keywords": [], "should_refuse": true},
+  {"question": "What are the Basel III capital requirements for banks?", "expected_pages": [], "keywords": [], "should_refuse": true},
+  {"question": "How do I apply for a home mortgage?", "expected_pages": [], "keywords": [], "should_refuse": true}
 ]
