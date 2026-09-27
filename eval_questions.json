@@ -1,0 +1,12 @@
+[
+  {"question": "How many days does a bank have to file a SAR?", "expected_pages": [12], "keywords": ["30"], "should_refuse": false},
+  {"question": "How long can a bank take to file a SAR if no suspect is identified?", "expected_pages": [12], "keywords": ["60"], "should_refuse": false},
+  {"question": "How long must SAR supporting documentation be retained?", "expected_pages": [15], "keywords": ["five"], "should_refuse": false},
+  {"question": "Can a bank tell the customer that a SAR was filed?", "expected_pages": [15, 16, 17], "keywords": ["confidential"], "should_refuse": false},
+  {"question": "How often should a bank report continuing suspicious activity?", "expected_pages": [11], "keywords": ["90"], "should_refuse": false},
+  {"question": "Must the board of directors be notified of SAR filings?", "expected_pages": [14], "keywords": ["board"], "should_refuse": false},
+  {"question": "Does notifying law enforcement remove the obligation to file a SAR?", "expected_pages": [13], "keywords": ["not"], "should_refuse": false},
+  {"question": "Can a bank share a SAR with its foreign branches?", "expected_pages": [17], "keywords": ["not"], "should_refuse": false},
+  {"question": "What is the interest rate on a savings account?", "expected_pages": [], "keywords": [], "should_refuse": true},
+  {"question": "Who is the CEO of JPMorgan Chase?", "expected_pages": [], "keywords": [], "should_refuse": true}
+]
