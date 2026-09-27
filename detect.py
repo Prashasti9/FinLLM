@@ -6,7 +6,6 @@ import config
 
 DATA_DIR = config.BASE_DIR / "data" / "transactions"
 
-# Strong reasons flag on their own; weak reasons need at least two together
 STRONG = {"REPEATED_NEAR_CTR_THRESHOLD", "LARGE_VS_HISTORY", "NEW_RECIPIENT_LARGE",
           "HIGH_VELOCITY", "DORMANT_REACTIVATION"}
 WEAK = {"NEAR_CTR_THRESHOLD", "NEW_RECIPIENT", "FOREIGN_DESTINATION", "NIGHT_ACTIVITY"}
@@ -27,31 +26,30 @@ def count_in_window(times, window):
 def add_features(df):
     g = df.groupby("customer_id")
 
-    # How big is this amount compared with the customer's PAST typical amount?
     df["prior_median"] = g["amount"].transform(lambda s: s.shift().expanding().median())
     df["amount_ratio"] = (df["amount"] / df["prior_median"]).fillna(1.0)
-
-    # Days since this customer's previous transaction
     df["days_since_last"] = g["timestamp"].diff().dt.total_seconds().div(86400).fillna(0)
-
-    # First-ever transfer to this recipient?
     df["new_recipient"] = df["type"].eq("transfer") & (
         df.groupby(["customer_id", "recipient_id"]).cumcount() == 0)
 
+    # NEW: outgoing payment/transfer at least 3x this customer's usual size
+    df["big_outgoing"] = df["type"].isin(["payment", "transfer"]) & (df["amount_ratio"] >= 3)
+
     df["foreign"] = df["country"].ne("US")
     df["hour"] = df["timestamp"].dt.hour
-
-    # Cash deposits just under the $10,000 currency-reporting threshold
     df["near_threshold"] = df["type"].eq("deposit") & df["amount"].between(9000, 9999.99)
 
-    # Counts over rolling time windows, per customer
     df["tx_last_hour"] = 0
     df["near_threshold_7d"] = 0
+    df["big_out_7d"] = 0                    # NEW: how many big outgoing in the last 7 days
     for _, idx in g.groups.items():
         df.loc[idx, "tx_last_hour"] = count_in_window(df.loc[idx, "timestamp"], np.timedelta64(60, "m"))
         nt = df.loc[idx][df.loc[idx, "near_threshold"]]
         if len(nt):
             df.loc[nt.index, "near_threshold_7d"] = count_in_window(nt["timestamp"], np.timedelta64(7, "D"))
+        bo = df.loc[idx][df.loc[idx, "big_outgoing"]]
+        if len(bo):
+            df.loc[bo.index, "big_out_7d"] = count_in_window(bo["timestamp"], np.timedelta64(7, "D"))
     return df
 
 
@@ -80,7 +78,6 @@ def apply_rules(df):
 
 
 def apply_ml(df):
-    """Isolation Forest: learns what 'normal' looks like and isolates the odd ones."""
     features = pd.DataFrame({
         "log_amount": np.log1p(df["amount"]),
         "log_ratio": np.log(df["amount_ratio"].clip(lower=1e-3)),
@@ -89,6 +86,7 @@ def apply_ml(df):
         "night": (df["hour"] < 6).astype(int),
         "new_recipient": df["new_recipient"].astype(int),
         "foreign": df["foreign"].astype(int),
+        "big_out_7d": df["big_out_7d"],      # NEW behavioural feature
     })
     model = IsolationForest(n_estimators=200, contamination=0.01, random_state=42)
     df["ml_flag"] = model.fit_predict(features) == -1

@@ -40,7 +40,7 @@ profiles = {
 }
 
 # Pick 10 customers to carry suspicious patterns
-special = [str(c) for c in rng.choice(customers, size=10, replace=False)]
+special = [str(c) for c in rng.choice(customers, size=12, replace=False)]
 structurers, big_new, bursters, dormant = special[:3], special[3:6], special[6:8], special[8:10]
 
 # ---------- Normal activity ----------
@@ -91,7 +91,14 @@ for c in dormant:
     add(c, daytime(d + 1), "transfer", rng.uniform(38000, 58000),
         f"X{rng.integers(1000, 9999)}", "online", "US", "dormant_spike")
 
-# ---------- Save ----------
+# 5. NEW — no rule covers this: a spree of round-number card payments
+#    daytime, domestic, a payment not a transfer, each under 10x usual -> invisible to our rules
+spree = special[10:12]
+for c in spree:
+    d = int(rng.integers(55, 75))
+    for k in range(int(rng.integers(8, 13))):
+        amount = round(profiles[c]["typical"] * rng.uniform(5, 8) / 50) * 50
+        add(c, daytime(d + k), "payment", amount, f"M{rng.integers(100, 999)}", "card", "US", "spending_spree")# ---------- Save ----------
 df = pd.DataFrame(rows).sort_values("timestamp").reset_index(drop=True)
 df.insert(0, "txn_id", [f"T{i:05d}" for i in range(1, len(df) + 1)])
 df.to_csv(OUT_DIR / "transactions.csv", index=False)
@@ -105,3 +112,4 @@ print("\nWho carries each pattern (the answer key):")
 for name, group in [("structuring", structurers), ("large_new_foreign", big_new),
                     ("velocity_burst", bursters), ("dormant_spike", dormant)]:
     print(f"  {name:<18} {', '.join(group)}")
+print(f"  {'spending_spree':<18} {', '.join(spree)}")
