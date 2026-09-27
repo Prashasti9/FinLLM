@@ -2,3 +2,5 @@ ollama==0.6.2
 chromadb==1.5.9
 pypdf==6.19.0
 rank_bm25
+pandas
+scikit-learn
