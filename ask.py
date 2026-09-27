@@ -19,20 +19,43 @@ Rules:
 5. Be concise: at most 6 sentences or bullet points."""
 
 
-def retrieve(collection, question, top_k=config.TOP_K):
-    """Find the chunks most similar in meaning to the question."""
-    query_vector = ollama.embed(
-        model=config.EMBED_MODEL,
-        input=f"search_query: {question}",       # nomic's hint for questions
-    )["embeddings"][0]
-    results = collection.query(query_embeddings=[query_vector], n_results=top_k)
-    return list(zip(
-        results["ids"][0],
-        results["documents"][0],
-        results["metadatas"][0],
-        results["distances"][0],
-    ))
+def rewrite_query(question):
+    """Translate a plain-English question into the language regulators write in."""
+    prompt = (
+        "Rewrite the question below using the formal terminology of a U.S. bank "
+        "regulatory (BSA/AML) examination manual. Keep the same meaning. "
+        "Return ONLY the rewritten question.\n\n"
+        f"Question: {question}"
+    )
+    return ask_llm(prompt)
 
+
+def search(collection, text, n):
+    """One vector search: text -> numbers -> closest chunks."""
+    vector = ollama.embed(
+        model=config.EMBED_MODEL,
+        input=f"search_query: {text}",
+    )["embeddings"][0]
+    r = collection.query(query_embeddings=[vector], n_results=n)
+    return list(zip(r["ids"][0], r["documents"][0], r["metadatas"][0], r["distances"][0]))
+
+
+def retrieve(collection, question, top_k=config.TOP_K, extra=4, show_rewrite=False):
+    """Keep the original search results; let the rewrite only ADD new chunks."""
+    hits = search(collection, question, top_k)
+    seen = {h[0] for h in hits}
+
+    rewritten = rewrite_query(question)
+    if show_rewrite:
+        print(f"(also searched as: {rewritten})")
+
+    added = 0
+    for hit in search(collection, rewritten, top_k):
+        if hit[0] not in seen and added < extra:
+            hits.append(hit)
+            seen.add(hit[0])
+            added += 1
+    return hits
 
 def build_prompt(question, hits):
     """Number each chunk so the model can cite it as [1], [2], ..."""
@@ -68,7 +91,7 @@ def main():
         if not question:
             continue
 
-        hits = retrieve(collection, question)
+        hits = retrieve(collection, question, show_rewrite=True)
         answer = ask_llm(build_prompt(question, hits), system=SYSTEM_PROMPT)
 
         print("\n--- ANSWER ---")
