@@ -84,8 +84,6 @@ def apply_ml(df):
         "tx_last_hour": df["tx_last_hour"],
         "days_since_last": df["days_since_last"],
         "night": (df["hour"] < 6).astype(int),
-        "new_recipient": df["new_recipient"].astype(int),
-        "foreign": df["foreign"].astype(int),
         "big_out_7d": df["big_out_7d"],      # NEW behavioural feature
     })
     model = IsolationForest(n_estimators=200, contamination=0.01, random_state=42)
