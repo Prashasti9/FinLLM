@@ -19,4 +19,4 @@ CHUNK_SIZE = 900      # characters per chunk
 CHUNK_OVERLAP = 150   # characters shared between neighbouring chunks
 
 # ---------- Retrieval ----------
-TOP_K = 5             # how many chunks to fetch per question
+TOP_K = 8             # how many chunks to fetch per question

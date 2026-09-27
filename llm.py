@@ -11,7 +11,7 @@ def ask_llm(prompt, system=None):
         {"role": "user", "content": prompt},
     ]
 
-    reply = ollama.chat(model=config.LLM_MODEL, messages=messages, think=False)
+    reply = ollama.chat(model=config.LLM_MODEL, messages=messages, think=False, options={"temperature": 0})
     text = reply["message"]["content"]
 
     # Safety nets: drop any leaked thinking, and any echoed switch
