@@ -9,11 +9,11 @@ import config
 
 
 def ok(message):
-    print(f"✅ {message}")
+    print(f"PASS {message}")
 
 
 def fail(message):
-    print(f"❌ {message}")
+    print(f"FAIL {message}")
     sys.exit(1)   # stop immediately — later checks depend on earlier ones
 
 

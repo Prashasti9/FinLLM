@@ -25,7 +25,7 @@ def main():
             refusal_cases += 1
             ok = refused
             refusal_hits += ok
-            status = "✅" if ok else "❌ should have refused"
+            status = "PASS" if ok else "FAIL should have refused"
         else:
             answerable += 1
             got_page = any(p in pages for p in case["expected_pages"])
@@ -34,9 +34,9 @@ def main():
             retrieval_hits += got_page
             answer_hits += got_keywords
             cited += has_citation
-            status = (f"retrieval {'✅' if got_page else '❌'}  "
-                      f"answer {'✅' if got_keywords else '❌'}  "
-                      f"cited {'✅' if has_citation else '❌'}")
+            status = (f"retrieval {'PASS' if got_page else 'FAIL'}  "
+                      f"answer {'PASS' if got_keywords else 'FAIL'}  "
+                      f"cited {'PASS' if has_citation else 'FAIL'}")
 
         print(f"{n:>2}. {q}\n    {status}\n    pages retrieved: {pages}\n    answer: {answer[:150]}\n")
 
