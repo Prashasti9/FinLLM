@@ -8,7 +8,7 @@ CHROMA_DIR = BASE_DIR / "chroma_db"            # where the vector database is sa
 LOG_DIR = BASE_DIR / "logs"                    # where Q&A logs are saved
 
 # ---------- Models (run locally by Ollama) ----------
-LLM_MODEL = "qwen3:4b"               # writes the answers
+LLM_MODEL = "qwen3:4b-instruct"               # writes the answers
 EMBED_MODEL = "nomic-embed-text"     # turns text into numbers for search
 
 # ---------- Vector database ----------

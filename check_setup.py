@@ -46,7 +46,7 @@ reply = ollama.chat(
     think=False,
 )
 seconds = time.time() - start
-ok(f"Qwen replied in {seconds:.1f}s: {reply['message']['content'].strip()}")
+ok(f"Qwen replied in {seconds:.1f}s: {reply['message']['content'].split('</think>')[-1].strip()}")
 
 # 5. Libraries
 ok(f"ChromaDB version {chromadb.__version__}")

@@ -1,5 +1,6 @@
 import re
 import sys
+from collections import Counter
 
 import config
 from llm import ask_llm
@@ -7,7 +8,6 @@ from detect import load, add_features, apply_rules, apply_ml
 
 DATA_DIR = config.BASE_DIR / "data" / "transactions"
 
-# Plain-English meaning of each reason code — written by us, not invented by the LLM
 REASON_TEXT = {
     "REPEATED_NEAR_CTR_THRESHOLD": "cash deposit between $9,000 and $9,999, with 2 or more such deposits within 7 days",
     "NEAR_CTR_THRESHOLD": "cash deposit between $9,000 and $9,999",
@@ -21,10 +21,12 @@ REASON_TEXT = {
     "ML_ANOMALY": "the anomaly model rated this transaction statistically unusual",
 }
 
+REQUIRED = ["SUMMARY:", "WHAT WAS FLAGGED:", "WHY IT IS UNUSUAL", "OPEN QUESTIONS", "Decision:"]
+
 SYSTEM_PROMPT = """You are FinLLM, assisting a bank AML analyst. Write an alert summary using ONLY the facts provided.
 Rules:
 1. Cite the transaction ID (e.g. T04800) for every statement about activity.
-2. Use only amounts, dates and counts that appear in the facts. Do not calculate new numbers.
+2. Use only amounts, dates and counts that appear in the facts. Do not count, add up or calculate anything yourself; use the counts given.
 3. Describe what is unusual for this customer. Do NOT say the customer committed fraud, money laundering or any crime, and do not guess motives.
 4. If a transaction's only reason is ML_ANOMALY, say the model found it statistically unusual and point to the metrics that stand out.
 Format exactly:
@@ -45,7 +47,6 @@ def money(x):
 
 
 def run_detection():
-    """Re-run the detector in memory so we have every feature, not just flags.csv."""
     df = apply_ml(apply_rules(add_features(load())))
     df["flagged"] = df["rule_flag"] | df["ml_flag"]
     df["risk_score"] = 3 * df["n_strong"] + df["n_weak"] + 2 * df["ml_flag"].astype(int)
@@ -53,11 +54,12 @@ def run_detection():
 
 
 def customer_facts(df, cid):
-    """Build the fact sheet Qwen is allowed to use. All numbers are computed here, in Python."""
+    """Fact sheet for Qwen. Every number, count and date range is computed here in Python."""
     hist = df[df.customer_id == cid]
     flagged = hist[hist.flagged]
     baseline = hist[~hist.flagged] if (~hist.flagged).any() else hist
     usual = baseline.amount.median()
+    reason_counts = Counter(r for reasons in flagged.reasons for r in reasons)
 
     lines = [
         f"CUSTOMER: {cid}",
@@ -65,6 +67,9 @@ def customer_facts(df, cid):
         f"Usual (median) transaction amount: {money(usual)}",
         f"Countries used: {', '.join(sorted(hist.country.unique()))}",
         f"Flagged transactions: {len(flagged)}, total flagged amount {money(flagged.amount.sum())}",
+        f"Flagged period: {flagged.timestamp.min():%Y-%m-%d %H:%M} to {flagged.timestamp.max():%Y-%m-%d %H:%M}",
+        "Reason counts across flagged transactions: "
+        + ", ".join(f"{r}: {n}" for r, n in reason_counts.most_common()),
         "",
         "FLAGGED TRANSACTIONS:",
     ]
@@ -81,8 +86,11 @@ def customer_facts(df, cid):
     return "\n".join(lines), allowed_ids, allowed_amounts
 
 
+def missing_sections(answer):
+    return [s for s in REQUIRED if s.lower() not in answer.lower()]
+
+
 def grounding_check(answer, allowed_ids, allowed_amounts):
-    """Verify the LLM's text against the facts. Returns a list of warnings."""
     warnings = []
     bad_ids = sorted(set(re.findall(r"T\d{5}", answer)) - allowed_ids)
     if bad_ids:
@@ -108,19 +116,31 @@ def main():
             print(f"{cid} has no flagged transactions.")
             continue
         facts, ids, amounts = customer_facts(df, cid)
-        print(f"\n{'=' * 70}\n{cid}  (total risk score {ranked[cid]}) — writing summary...\n")
+        print(f"\n{'=' * 70}\n{cid}  (total risk score {ranked[cid]}) - writing summary...\n")
+
         answer = ask_llm(facts, system=SYSTEM_PROMPT)
+        attempts = 1
+        if missing_sections(answer):          # one retry with a firmer instruction
+            answer = ask_llm(facts + "\n\nIMPORTANT: your answer MUST contain these headings exactly: "
+                             + ", ".join(REQUIRED), system=SYSTEM_PROMPT)
+            attempts = 2
+
         warnings = grounding_check(answer, ids, amounts)
+        missing = missing_sections(answer)
+        if missing:
+            warnings.append(f"missing sections after {attempts} attempts: {missing}")
 
         print(answer)
-        print("\nGROUNDING CHECK:", "passed" if not warnings else "")
+        print(f"\nCHECKS (attempts: {attempts}):", "passed" if not warnings else "")
         for w in warnings:
-            print(f"  WARN  {w}")
+            print(f"  WARN {w}")
         report.append(f"## {cid} (risk score {ranked[cid]})\n\n{answer}\n\n"
-                      f"Grounding check: {'passed' if not warnings else '; '.join(warnings)}\n")
+                      f"Checks: {'passed' if not warnings else '; '.join(warnings)}\n")
 
-    (DATA_DIR / "explanations.md").write_text("\n".join(report))
-    print(f"\nSaved to {DATA_DIR / 'explanations.md'}")
+    name = sys.argv[1] if len(sys.argv) > 1 else "top3"
+    out_file = DATA_DIR / f"explanations_{name}.md"
+    out_file.write_text("\n".join(report))
+    print(f"\nSaved to {out_file}")
 
 
 if __name__ == "__main__":
