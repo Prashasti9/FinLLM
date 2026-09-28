@@ -1,4 +1,4 @@
-# FinLLM — Module 1 status (27 Sep 2026)
+# FinLLM - Module 1 status (27 Sep 2026)
 
 ## How to run
 1. python check_setup.py
@@ -21,3 +21,9 @@
 - Pure prompting does not stop a 4B model inferring; retrieval quality is the real safeguard.
 - Latency: 2 Qwen calls per question + up to 16 chunks. Full eval takes ~15-30 min. Not measured per question yet.
 - Only one PDF tested so far.
+
+## Model comparison (27 Sep 2026, 24-question eval, read by hand)
+- qwen3:4b (thinking): 19/20 correct, 0 confident wrong answers, 4/4 refusals. Very slow; reasoning leaks.
+- qwen3:4b-instruct: 17/20 correct, 2 confident wrong answers (Q10, Q20), 4/4 refusals. Faster; clean output.
+- Keyword scoring passed both wrong answers; added must_not phrases to the eval.
+- Plan: thinking model for regulation Q&A (accuracy-critical), instruct model for explain.py (facts computed in Python).

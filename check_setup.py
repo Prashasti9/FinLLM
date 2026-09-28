@@ -14,7 +14,7 @@ def ok(message):
 
 def fail(message):
     print(f"FAIL {message}")
-    sys.exit(1)   # stop immediately — later checks depend on earlier ones
+    sys.exit(1)   # stop immediately - later checks depend on earlier ones
 
 
 print("Checking FinLLM setup...\n")

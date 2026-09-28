@@ -94,7 +94,7 @@ def build_prompt(question, hits):
 
 
 def log(question, hits, answer):
-    """Append one line per question to logs/qa_log.jsonl — the audit trail."""
+    """Append one line per question to logs/qa_log.jsonl - the audit trail."""
     config.LOG_DIR.mkdir(exist_ok=True)
     record = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -110,7 +110,7 @@ def main():
     show_context = "--show-context" in sys.argv
     client = chromadb.PersistentClient(path=str(config.CHROMA_DIR))
     collection = client.get_collection(config.COLLECTION_NAME)
-    print(f"FinLLM ready — {collection.count()} chunks loaded. Type 'exit' to quit.\n")
+    print(f"FinLLM ready - {collection.count()} chunks loaded. Type 'exit' to quit.\n")
 
     while True:
         question = input("Ask FinLLM > ").strip()

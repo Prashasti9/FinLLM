@@ -91,7 +91,7 @@ for c in dormant:
     add(c, daytime(d + 1), "transfer", rng.uniform(38000, 58000),
         f"X{rng.integers(1000, 9999)}", "online", "US", "dormant_spike")
 
-# 5. NEW — no rule covers this: a spree of round-number card payments
+# 5. NEW - no rule covers this: a spree of round-number card payments
 #    daytime, domestic, a payment not a transfer, each under 10x usual -> invisible to our rules
 spree = special[10:12]
 for c in spree:

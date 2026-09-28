@@ -13,7 +13,7 @@ WEAK = {"NEAR_CTR_THRESHOLD", "NEW_RECIPIENT", "FOREIGN_DESTINATION", "NIGHT_ACT
 
 def load():
     df = pd.read_csv(DATA_DIR / "transactions.csv", parse_dates=["timestamp"])
-    df = df.drop(columns=["pattern"])    # the answer key — the detector must never see it
+    df = df.drop(columns=["pattern"])    # the answer key - the detector must never see it
     return df.sort_values("timestamp").reset_index(drop=True)
 
 

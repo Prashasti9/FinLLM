@@ -21,20 +21,20 @@ REASON_TEXT = {
     "ML_ANOMALY": "the anomaly model rated this transaction statistically unusual",
 }
 
-REQUIRED = ["SUMMARY:", "WHAT WAS FLAGGED:", "WHY IT IS UNUSUAL", "OPEN QUESTIONS", "Decision:"]
+# The flagged-transaction list is printed by Python, so the LLM writes only these sections
+REQUIRED = ["SUMMARY:", "WHY IT IS UNUSUAL", "OPEN QUESTIONS", "Decision:"]
 
-SYSTEM_PROMPT = """You are FinLLM, assisting a bank AML analyst. Write an alert summary using ONLY the facts provided.
+SYSTEM_PROMPT = """You are FinLLM, assisting a bank AML analyst. Write an alert narrative using ONLY the facts provided.
 Rules:
-1. Cite the transaction ID (e.g. T04800) for every statement about activity.
-2. Use only amounts, dates and counts that appear in the facts. Do not count, add up or calculate anything yourself; use the counts given.
-3. Describe what is unusual for this customer. Do NOT say the customer committed fraud, money laundering or any crime, and do not guess motives.
-4. If a transaction's only reason is ML_ANOMALY, say the model found it statistically unusual and point to the metrics that stand out.
+1. Refer to transactions by ID (e.g. T04800). Do not copy or list the transaction details; they are shown to the analyst separately.
+2. Use amounts, dates and counts exactly as written in the facts. Do not round, count, add up or calculate anything yourself.
+3. Only call something unusual if the facts show it (for example a ratio to the usual amount, or the history counts provided).
+4. Do NOT say the customer committed fraud, money laundering or any crime, and do not guess motives.
+5. If a transaction's only reason is ML_ANOMALY, say the model found it statistically unusual and name the metrics that stand out.
 Format exactly:
 SUMMARY: one or two sentences.
-WHAT WAS FLAGGED:
-- bullets, each with transaction IDs
 WHY IT IS UNUSUAL FOR THIS CUSTOMER:
-- bullets
+- two to four bullets
 OPEN QUESTIONS FOR THE ANALYST:
 - two or three bullets
 Decision: requires analyst review."""
@@ -54,7 +54,7 @@ def run_detection():
 
 
 def customer_facts(df, cid):
-    """Fact sheet for Qwen. Every number, count and date range is computed here in Python."""
+    """Fact sheet for the LLM. Every number, count and range is computed here in Python."""
     hist = df[df.customer_id == cid]
     flagged = hist[hist.flagged]
     baseline = hist[~hist.flagged] if (~hist.flagged).any() else hist
@@ -64,9 +64,11 @@ def customer_facts(df, cid):
     lines = [
         f"CUSTOMER: {cid}",
         f"History: {len(hist)} transactions from {hist.timestamp.min():%Y-%m-%d} to {hist.timestamp.max():%Y-%m-%d}",
-        f"Usual (median) transaction amount: {money(usual)}",
+        f"Usual (median) amount across all non-flagged transactions: {money(usual)}",
+        f"Non-flagged transactions made before 6am: {int((baseline.hour < 6).sum())} of {len(baseline)}",
         f"Countries used: {', '.join(sorted(hist.country.unique()))}",
         f"Flagged transactions: {len(flagged)}, total flagged amount {money(flagged.amount.sum())}",
+        f"Flagged amount range: {money(flagged.amount.min())} to {money(flagged.amount.max())}",
         f"Flagged period: {flagged.timestamp.min():%Y-%m-%d %H:%M} to {flagged.timestamp.max():%Y-%m-%d %H:%M}",
         "Reason counts across flagged transactions: "
         + ", ".join(f"{r}: {n}" for r, n in reason_counts.most_common()),
@@ -83,7 +85,16 @@ def customer_facts(df, cid):
     allowed_ids = set(flagged.txn_id)
     allowed_amounts = {round(a, 2) for a in flagged.amount}
     allowed_amounts |= {round(flagged.amount.sum(), 2), round(usual, 2), 9000.0, 9999.0, 10000.0}
-    return "\n".join(lines), allowed_ids, allowed_amounts
+    return "\n".join(lines), flagged, allowed_ids, allowed_amounts
+
+
+def flagged_table(flagged):
+    """The exact transaction list, printed by Python rather than written by the LLM."""
+    rows = []
+    for _, t in flagged.iterrows():
+        rows.append(f"- {t.txn_id} | {t.timestamp:%Y-%m-%d %H:%M} | {t.type} | {money(t.amount)} | "
+                    f"to {t.recipient_id} | {t.country} | {'; '.join(t.reasons)}")
+    return "\n".join(rows)
 
 
 def missing_sections(answer):
@@ -96,9 +107,9 @@ def grounding_check(answer, allowed_ids, allowed_amounts):
     if bad_ids:
         warnings.append(f"mentions transaction IDs not in the facts: {bad_ids}")
     for amt in re.findall(r"\$\d[\d,]*(?:\.\d+)?", answer):
-        value = round(float(amt.replace("$", "").replace(",", "")), 2)
+        value = round(float(amt.rstrip(",.").replace("$", "").replace(",", "")), 2)
         if value not in allowed_amounts:
-            warnings.append(f"amount {amt} not found in the facts (invented or rounded)")
+            warnings.append(f"amount {amt.rstrip(',.')} not found in the facts (invented or rounded)")
     for word in JUDGMENTAL:
         if word in answer.lower():
             warnings.append(f"uses judgmental term '{word}'")
@@ -115,12 +126,12 @@ def main():
         if cid not in ranked.index:
             print(f"{cid} has no flagged transactions.")
             continue
-        facts, ids, amounts = customer_facts(df, cid)
+        facts, flagged, ids, amounts = customer_facts(df, cid)
         print(f"\n{'=' * 70}\n{cid}  (total risk score {ranked[cid]}) - writing summary...\n")
 
         answer = ask_llm(facts, system=SYSTEM_PROMPT)
         attempts = 1
-        if missing_sections(answer):          # one retry with a firmer instruction
+        if missing_sections(answer):
             answer = ask_llm(facts + "\n\nIMPORTANT: your answer MUST contain these headings exactly: "
                              + ", ".join(REQUIRED), system=SYSTEM_PROMPT)
             attempts = 2
@@ -130,11 +141,13 @@ def main():
         if missing:
             warnings.append(f"missing sections after {attempts} attempts: {missing}")
 
-        print(answer)
+        output = (f"FLAGGED TRANSACTIONS (system data)\n{flagged_table(flagged)}\n\n"
+                  f"ANALYST NARRATIVE (AI-drafted, verify before use)\n{answer}")
+        print(output)
         print(f"\nCHECKS (attempts: {attempts}):", "passed" if not warnings else "")
         for w in warnings:
             print(f"  WARN {w}")
-        report.append(f"## {cid} (risk score {ranked[cid]})\n\n{answer}\n\n"
+        report.append(f"## {cid} (risk score {ranked[cid]})\n\n{output}\n\n"
                       f"Checks: {'passed' if not warnings else '; '.join(warnings)}\n")
 
     name = sys.argv[1] if len(sys.argv) > 1 else "top3"
