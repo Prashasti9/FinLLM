@@ -1,74 +1,94 @@
 ## C014 (risk score 75)
 
+FLAGGED TRANSACTIONS (system data)
+- T04531 | 2026-08-17 02:02 | transfer | $251.71 | to N4146 | US | NEW_RECIPIENT; NIGHT_ACTIVITY
+- T04532 | 2026-08-17 02:07 | transfer | $269.58 | to N1172 | US | NEW_RECIPIENT; NIGHT_ACTIVITY
+- T04533 | 2026-08-17 02:11 | transfer | $211.13 | to N7811 | US | NEW_RECIPIENT; NIGHT_ACTIVITY; ML_ANOMALY
+- T04534 | 2026-08-17 02:14 | transfer | $332.93 | to N7301 | US | NEW_RECIPIENT; NIGHT_ACTIVITY; ML_ANOMALY
+- T04535 | 2026-08-17 02:19 | transfer | $239.69 | to N1534 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04536 | 2026-08-17 02:21 | transfer | $185.23 | to N4565 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04537 | 2026-08-17 02:23 | transfer | $332.24 | to N7696 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04538 | 2026-08-17 02:26 | transfer | $233.77 | to N5370 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04539 | 2026-08-17 02:31 | transfer | $324.60 | to N5362 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04540 | 2026-08-17 02:34 | transfer | $344.13 | to N3057 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04541 | 2026-08-17 02:37 | transfer | $228.27 | to N7738 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04542 | 2026-08-17 02:42 | transfer | $208.68 | to N9501 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04543 | 2026-08-17 02:47 | transfer | $291.99 | to N1769 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+
+ANALYST NARRATIVE (AI-drafted, verify before use)
 SUMMARY:  
-A sequence of 13 transfers occurred between 2026-08-17 02:02 and 02:47, all to new recipients, with activity concentrated in the early hours of the morning and increasing in volume and amount over time.  
-
-WHAT WAS FLAGGED:  
-- T04531 | $251.71 | to N4146 | US | 2.4x usual | 1 txns in last hour  
-- T04532 | $269.58 | to N1172 | US | 2.6x usual | 2 txns in last hour  
-- T04533 | $211.13 | to N7811 | US | 2.0x usual | 3 txns in last hour  
-- T04534 | $332.93 | to N7301 | US | 3.2x usual | 4 txns in last hour  
-- T04535 | $239.69 | to N1534 | US | 2.3x usual | 5 txns in last hour  
-- T04536 | $185.23 | to N4565 | US | 1.8x usual | 6 txns in last hour  
-- T04537 | $332.24 | to N7696 | US | 3.1x usual | 7 txns in last hour  
-- T04538 | $233.77 | to N5370 | US | 2.2x usual | 8 txns in last hour  
-- T04539 | $324.60 | to N5362 | US | 3.0x usual | 9 txns in last hour  
-- T04540 | $344.13 | to N3057 | US | 3.2x usual | 10 txns in last hour  
-- T04541 | $228.27 | to N7738 | US | 2.1x usual | 11 txns in last hour  
-- T04542 | $208.68 | to N9501 | US | 1.9x usual | 12 txns in last hour  
-- T04543 | $291.99 | to N1769 | US | 2.7x usual | 13 txns in last hour  
+A sequence of 13 flagged transactions occurred between 02:02 and 02:47 on 2026-08-17, all involving transfers to new recipients and occurring during nighttime hours. The transactions show a consistent pattern of increasing volume and amount over time, with the model identifying several as statistically unusual.
 
 WHY IT IS UNUSUAL FOR THIS CUSTOMER:  
-- All 13 transactions occurred between midnight and 6am, which is outside the customer’s usual activity period.  
-- Every transaction was to a new recipient, with no prior transfers to any of these accounts.  
-- The number of transactions per hour increased from 1 to 13 over the 45-minute period, indicating a rapid escalation in transaction volume.  
-- The model flagged 11 transactions as ML_ANOMALY, citing statistical
-
-Checks: missing sections after 2 attempts: ['OPEN QUESTIONS', 'Decision:']
-
-## C006 (risk score 61)
-
-SUMMARY:  
-A sequence of 11 transfers occurred between 2026-08-19 02:04 and 02:45, all to new recipients, with transaction amounts 2.0x to 3.2x the customer’s usual amount of $101.62.  
-
-WHAT WAS FLAGGED:  
-- T04668 | $269.09 | to N5723 | 2.6x usual | 1 txns in last hour | 2 days since previous txn | 0 large outgoing in last 7 days  
-- T04669 | $276.05 | to N4617 | 2.7x usual | 2 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T04670 | $333.63 | to N6151 | 3.2x usual | 3 txns in last hour | 0 days since previous txn | 1 large outgoing in last 7 days  
-- T04671 | $276.19 | to N6146 | 2.7x usual | 4 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T04672 | $239.09 | to N4233 | 2.3x usual | 5 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T04673 | $211.92 | to N5501 | 2.0x usual | 6 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T04674 | $295.23 | to N8347 | 2.8x usual | 7 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T04675 | $233.51 | to N1907 | 2.2x usual | 8 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T04676 | $240.57 | to N8667 | 2.2x usual | 9 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T04677 | $347.53 | to N7910 | 3.2x usual | 10 txns in last hour | 0 days since previous txn | 2 large outgoing in last 7 days  
-- T04678 | $342.71 | to N4831 | 3.1x usual | 11 txns in last hour | 0 days since previous txn | 3 large outgoing in last 7 days  
-
-WHY IT IS UNUSUAL FOR THIS CUSTOMER:  
-- The
-
-Checks: missing sections after 2 attempts: ['OPEN QUESTIONS', 'Decision:']
-
-## C015 (risk score 30)
-
-SUMMARY: Four deposits to self were flagged between 2026-08-01 and 2026-08-04, each exceeding 45x the customer’s usual transaction amount of $205.24.  
-
-WHAT WAS FLAGGED:  
-- T03612 | 2026-08-01 15:47 | deposit | $9,528.43 | to SELF | US | 47.1x usual | 1 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T03671 | 2026-08-02 15:17 | deposit | $9,282.83 | to SELF | US | 45.6x usual | 1 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-- T03699 | 2026-08-03 09:22 | deposit | $9,531.97 | to SELF | US | 46.8x usual | 1 txns in last hour | 1 days since previous txn | 0 large outgoing in last 7 days  
-- T03812 | 2026-08-04 17:58 | deposit | $9,286.45 | to SELF | US | 45.6x usual | 2 txns in last hour | 0 days since previous txn | 0 large outgoing in last 7 days  
-
-WHY IT IS UNUSUAL FOR THIS CUSTOMER:  
-- All four transactions are deposits to self, with amounts between $9,282 and $9,532, which are 45.6x to 47.1x the customer’s usual transaction amount of $205.24.  
-- The customer has made four cash deposits between $9,000 and $9,999 in a span of three days, with at least two such deposits within 7 days (REPEATED_NEAR_CTR_THRESHOLD).  
-- Each transaction is flagged by ML_ANOMALY, indicating the model identified it as statistically unusual based on deviation from historical patterns.  
+- All flagged transactions occurred between midnight and 6am, a period with zero prior non-flagged transactions during the same time.  
+- Every transaction involved a new recipient, indicating a pattern of unverified or unfamiliar counterparties.  
+- The transaction volume increased steadily from 1 to 13 transactions within one hour, with a sustained high-velocity pattern (5+ transactions per hour) across all transactions.  
+- The model flagged 11 of the 13 transactions as statistically unusual (ML_ANOMALY), highlighting deviations in amount, timing, or pattern beyond simple thresholds.
 
 OPEN QUESTIONS FOR THE ANALYST:  
-- What is the customer’s typical purpose for deposits to self, and is there a known pattern of such activity?  
-- Are there any other transactions (e.g., outgoing, transfers) that occurred during this period that might explain the deposits?  
-- Could the deposits be part of a legitimate activity, such as a one-time cash infusion or a personal financial event, that is not reflected in the customer history?  
+- What is the customer’s typical activity pattern during nighttime hours, and is there a known reason for such activity?  
+- Are any of the recipient accounts linked to known high-risk or sanctioned entities?  
+- Could the sequence of transactions be part of a coordinated or automated process, such as a test or bulk transfer?
 
 Decision: requires analyst review.
 
-Checks: amount $9,282 not found in the facts (invented or rounded); amount $9,532, not found in the facts (invented or rounded)
+Checks: passed
+
+## C006 (risk score 61)
+
+FLAGGED TRANSACTIONS (system data)
+- T04668 | 2026-08-19 02:04 | transfer | $269.09 | to N5723 | US | NEW_RECIPIENT; NIGHT_ACTIVITY
+- T04669 | 2026-08-19 02:09 | transfer | $276.05 | to N4617 | US | NEW_RECIPIENT; NIGHT_ACTIVITY
+- T04670 | 2026-08-19 02:12 | transfer | $333.63 | to N6151 | US | NEW_RECIPIENT; NIGHT_ACTIVITY; ML_ANOMALY
+- T04671 | 2026-08-19 02:16 | transfer | $276.19 | to N6146 | US | NEW_RECIPIENT; NIGHT_ACTIVITY; ML_ANOMALY
+- T04672 | 2026-08-19 02:20 | transfer | $239.09 | to N4233 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04673 | 2026-08-19 02:23 | transfer | $211.92 | to N5501 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04674 | 2026-08-19 02:28 | transfer | $295.23 | to N8347 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04675 | 2026-08-19 02:33 | transfer | $233.51 | to N1907 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04676 | 2026-08-19 02:38 | transfer | $240.57 | to N8667 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04677 | 2026-08-19 02:41 | transfer | $347.53 | to N7910 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+- T04678 | 2026-08-19 02:45 | transfer | $342.71 | to N4831 | US | NEW_RECIPIENT; HIGH_VELOCITY; NIGHT_ACTIVITY; ML_ANOMALY
+
+ANALYST NARRATIVE (AI-drafted, verify before use)
+SUMMARY: Eleven flagged transactions occurred between 02:04 and 02:45 on 2026-08-19, all within a one-hour window, involving multiple new recipients and significantly exceeding the customer’s usual transaction amount.  
+
+WHY IT IS UNUSUAL FOR THIS CUSTOMER:  
+- All flagged transactions occurred between midnight and 6am, a period with zero non-flagged transactions in the customer’s history.  
+- Every transaction involved a new recipient, indicating no prior relationship with any of the recipients.  
+- The transaction amounts ranged from 2.0x to 3.2x the customer’s usual amount of $101.62, with the highest being 3.2x.  
+- The model identified ML_ANOMALY for nine of the eleven transactions, indicating statistically unusual behavior beyond the defined thresholds.  
+
+OPEN QUESTIONS FOR THE ANALYST:  
+- What is the context or purpose behind the customer making multiple transfers to new recipients during a night-time window with no prior activity?  
+- Are there any known relationships or accounts linked to the recipient IDs (N5723, N4617, etc.) that could explain the activity?  
+- Could the high velocity of transactions (11 in one hour) be a result of a legitimate event, such as a bulk payout or automated process, or is it indicative of a pattern requiring further investigation?  
+
+Decision: requires analyst review.
+
+Checks: passed
+
+## C015 (risk score 30)
+
+FLAGGED TRANSACTIONS (system data)
+- T03612 | 2026-08-01 15:47 | deposit | $9,528.43 | to SELF | US | NEAR_CTR_THRESHOLD; LARGE_VS_HISTORY; ML_ANOMALY
+- T03671 | 2026-08-02 15:17 | deposit | $9,282.83 | to SELF | US | REPEATED_NEAR_CTR_THRESHOLD; LARGE_VS_HISTORY; ML_ANOMALY
+- T03699 | 2026-08-03 09:22 | deposit | $9,531.97 | to SELF | US | REPEATED_NEAR_CTR_THRESHOLD; LARGE_VS_HISTORY; ML_ANOMALY
+- T03812 | 2026-08-04 17:58 | deposit | $9,286.45 | to SELF | US | REPEATED_NEAR_CTR_THRESHOLD; LARGE_VS_HISTORY; ML_ANOMALY
+
+ANALYST NARRATIVE (AI-drafted, verify before use)
+SUMMARY: Four flagged deposits to self occurred between 2026-08-01 and 2026-08-04, each exceeding 45x the customer’s usual transaction amount. All transactions were cash deposits between $9,000 and $9,999, with multiple instances of repeated deposits within a 7-day window.
+
+WHY IT IS UNUSUAL FOR THIS CUSTOMER:
+- Each flagged transaction is at least 45x the customer’s usual transaction amount of $205.24, significantly exceeding historical norms.
+- All four transactions are cash deposits between $9,000 and $9,999, triggering the NEAR_CTR_THRESHOLD rule, with at least two such deposits occurring within 7 days.
+- The REPEATED_NEAR_CTR_THRESHOLD rule is triggered three times, indicating a pattern of multiple high-value deposits in a short period.
+- The ML_ANOMALY flag is applied to all four transactions, indicating the model identified statistical deviations in amount, timing, or behavior.
+
+OPEN QUESTIONS FOR THE ANALYST:
+- What is the customer’s typical transaction pattern before 2026-08-01, and is there a known reason for large deposits in the past?
+- Are there any known relationships or accounts linked to this customer that might explain the deposits to self?
+- Could the deposits be part of a legitimate process (e.g., fund transfer, settlement) that has not been previously documented?
+
+Decision: requires analyst review.
+
+Checks: passed

@@ -27,3 +27,9 @@
 - qwen3:4b-instruct: 17/20 correct, 2 confident wrong answers (Q10, Q20), 4/4 refusals. Faster; clean output.
 - Keyword scoring passed both wrong answers; added must_not phrases to the eval.
 - Plan: thinking model for regulation Q&A (accuracy-critical), instruct model for explain.py (facts computed in Python).
+
+## Narrative review (27 Sep 2026, qwen3:4b-instruct, read by hand)
+- C014, C006, C015, C020: all sections present, first attempt, grounding checks passed.
+- Reasoning errors found anyway: C014 claims amounts increase (they do not) and high velocity on all 13 (9 of 13); C015 says all four triggered NEAR_CTR_THRESHOLD (1 did, 3 REPEATED); C020 claims no prior deposits (false) and invents "after 3pm".
+- Lesson: code checks catch invented IDs and amounts, not faulty reasoning about real facts.
+- Plan: generate WHY IT IS UNUSUAL in Python from reason counts; LLM writes only SUMMARY and OPEN QUESTIONS.
