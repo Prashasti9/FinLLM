@@ -1,6 +1,6 @@
 # FinLLM: Update for Kartik
 
-Hi Kartik, here is where the project stands, what I built, and how you can run it and pick up work.
+Hi Kartik, here is where the project stands, what I built, and how to run it.
 
 ## 1. Where we landed on the idea
 
@@ -80,15 +80,13 @@ Note: the full `eval.py` takes a long time on a laptop (about a minute per quest
 - Local inference is slow on a laptop.
 - No supervised model yet, and only one regulatory document.
 
-## 7. Next steps and a possible split
+## 7. Next steps
 
-| Task | Suggested owner |
-|---|---|
-| Model split + latency improvements, measured with `eval.py --quick` | Prashasti |
-| Module 3: link each flag to the relevant regulation page, with citations | Either |
-| Supervised model on a public labeled dataset (PaySim or IBM AML), compared with rules and Isolation Forest | Kartik? |
-| Add more regulatory documents and extend the eval questions | Kartik? |
-| Talk to 3-5 people who work AML alerts: what takes their time, what would they trust an AI to do | Both |
+- Split models by task (accurate model for regulation Q&A, fast model for narratives) and reduce latency, measured with `eval.py --quick`.
+- Module 3: link each flag to the relevant regulation page, with citations.
+- Train a supervised model on a public labeled dataset (PaySim or IBM AML) and compare it with the rules and Isolation Forest.
+- Add more regulatory documents and extend the eval questions.
+- Talk to 3-5 people who work AML alerts: what takes their time, and what would they trust an AI to do.
 
 ## 8. How we should work together
 
