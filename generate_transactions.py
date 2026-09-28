@@ -33,7 +33,7 @@ def daytime(day):
 customers = [f"C{i:03d}" for i in range(1, N_CUSTOMERS + 1)]
 profiles = {
     c: {
-        "typical": float(rng.lognormal(mean=5, sigma=0.6)),   # typical spend, roughly $50–$500
+        "typical": float(rng.lognormal(mean=5, sigma=0.6)),   # typical spend, roughly $50-$500
         "payees": [f"P{rng.integers(1000, 9999)}" for _ in range(int(rng.integers(2, 5)))],
     }
     for c in customers
@@ -75,7 +75,7 @@ for c in big_new:
     add(c, daytime(d), "transfer", profiles[c]["typical"] * rng.uniform(40, 80),
         f"X{rng.integers(1000, 9999)}", "online", rng.choice(["AE", "KY", "PA", "CY"]), "large_new_foreign")
 
-# 3. Velocity burst: 10–15 transfers to new recipients within ~1 hour, at 2am
+# 3. Velocity burst: 10-15 transfers to new recipients within ~1 hour, at 2am
 for c in bursters:
     base = START + timedelta(days=int(rng.integers(60, 88)), hours=2)
     minutes = 0
