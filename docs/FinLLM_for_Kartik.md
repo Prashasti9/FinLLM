@@ -8,11 +8,11 @@ We kept the direction from your ChatGPT research: **a private, local AI assistan
 
 Design principle: **rules and ML detect, the LLM explains, a human decides.** Everything runs locally with Ollama, which is part of the pitch: compliance teams do not want customer data sent to outside AI APIs.
 
-## 2. What changed from your prototype
+## 2. How it differs from the earlier prototype
 
-Your setup (Ollama + Qwen3 + nomic-embed-text + ChromaDB + a PDF RAG script) was the right base. I rebuilt it as a structured project and changed a few things:
+I built this as a separate, structured project on my laptop. It uses the same core stack as the earlier prototype (Ollama, Qwen3, nomic-embed-text, ChromaDB), with these differences:
 
-| Your version | Now | Why |
+| Earlier prototype | Now | Why |
 |---|---|---|
 | Whole PDF page as one embedding | 900-character chunks with 150 overlap | Long pages were being truncated by the embedding model |
 | Dense search only | Dense + LLM query rewrite + BM25 keyword search | Dense search missed exact regulatory phrases like "initial detection" |
@@ -92,7 +92,7 @@ Note: the full `eval.py` takes a long time on a laptop (about a minute per quest
 
 ## 8. How we should work together
 
-- Send me your GitHub username so I can add you as a collaborator.
+- You are already added as a collaborator on GitHub.
 - Pull before starting: `git pull`. Work on a branch for bigger changes: `git checkout -b your-feature`.
 - Run the relevant eval before and after any change, and note the numbers in `NOTES.md`.
 - Keep `requirements.txt` updated when adding a package.

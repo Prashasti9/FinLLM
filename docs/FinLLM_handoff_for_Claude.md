@@ -43,7 +43,7 @@ Last updated: 27 Sep 2026.
 
 Design principle: **rules and ML detect, the LLM explains, a human decides.** Everything runs locally with Ollama, with no external AI API, because compliance teams do not want customer data sent to third parties.
 
-Longer-term startup vision (from Kartik's research): a "financial trust / risk" layer for fintechs. FinLLM is the proof of concept.
+Longer-term startup vision (from Kartik's research): a "financial trust / risk" layer for fintechs. FinLLM is the proof of concept. Kartik did the idea research and an earlier separate prototype; I built the current code independently. Kartik is a collaborator on the repo.
 
 ---
 
@@ -178,5 +178,5 @@ Working principles we follow: set the pass criterion before running a test; chan
 3. **Module 3:** link each flag to the relevant regulation page (for example, structuring flags retrieve SAR thresholds and filing deadlines from Module 1, with citations).
 4. **Supervised model** on a public labeled dataset (PaySim or IBM AML) with a time-based split, PR-AUC and precision@k, compared against rules and Isolation Forest.
 5. **Thin pipeline:** one command per daily batch, results and run metadata stored in SQLite; later a small Streamlit review UI.
-6. **Housekeeping:** add Kartik as a GitHub collaborator; finish the README Authors section; rewrite "What I learned" in my own words.
+6. **Housekeeping:** finish the README Authors section; rewrite "What I learned" in my own words. (Kartik is already a GitHub collaborator.)
 7. **Validation:** show the demo to 3-5 people who work AML alerts.
