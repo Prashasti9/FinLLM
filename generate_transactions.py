@@ -1,10 +1,11 @@
+import sys
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
 import config
 
-rng = np.random.default_rng(42)          # fixed seed = same data every run
+rng = np.random.default_rng(int(sys.argv[1]) if len(sys.argv) > 1 else 42)          # fixed seed = same data every run
 START = datetime(2026, 6, 1)
 DAYS = 90
 N_CUSTOMERS = 50

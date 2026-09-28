@@ -33,3 +33,7 @@
 - Reasoning errors found anyway: C014 claims amounts increase (they do not) and high velocity on all 13 (9 of 13); C015 says all four triggered NEAR_CTR_THRESHOLD (1 did, 3 REPEATED); C020 claims no prior deposits (false) and invents "after 3pm".
 - Lesson: code checks catch invented IDs and amounts, not faulty reasoning about real facts.
 - Plan: generate WHY IT IS UNUSUAL in Python from reason counts; LLM writes only SUMMARY and OPEN QUESTIONS.
+
+## Detector robustness (27 Sep 2026, 5 unseen datasets, seeds 1-5; tuning used seed 42)
+- Precision 92% +/- 5% (85-98%), recall 87% +/- 8% (75-95%), suspicious customers 59/60, innocent flagged 3.4 on average.
+- Spending spree (ML only): 53% +/- 25% (15-81%). ML coverage of rule-free patterns is real but unstable.
