@@ -37,3 +37,8 @@
 ## Detector robustness (27 Sep 2026, 5 unseen datasets, seeds 1-5; tuning used seed 42)
 - Precision 92% +/- 5% (85-98%), recall 87% +/- 8% (75-95%), suspicious customers 59/60, innocent flagged 3.4 on average.
 - Spending spree (ML only): 53% +/- 25% (15-81%). ML coverage of rule-free patterns is real but unstable.
+
+## Narrative scorecard (27 Sep 2026, explain.py --all, qwen3:4b-instruct)
+- 16/16 complete, 15/16 passed automated checks, 0 retries, ~6s per customer.
+- Hand review of 5 (C023 real; C003, C028, C020, C011 false alarms): WHY section exact in 5/5; AI summary/questions accurate in 3/5, neutral in 5/5.
+- Remaining slips are in AI-drafted text (C020 "five-day period"; C011 invented "no prior transactions at that time").

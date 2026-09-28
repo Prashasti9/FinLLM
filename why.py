@@ -44,7 +44,8 @@ def why_bullets(flagged, baseline, usual):
         ml_only = flagged[[list(r) == ["ML_ANOMALY"] for r in flagged.reasons]]
         line = f"{n} of {total} were rated statistically unusual by the anomaly model"
         if len(ml_only):
-            line += (f"; {len(ml_only)} for that reason alone, at {ml_only.amount_ratio.min():.1f}x to "
-                     f"{ml_only.amount_ratio.max():.1f}x the usual amount")
+            lo, hi = ml_only.amount_ratio.min(), ml_only.amount_ratio.max()
+            span = f"{lo:.1f}x" if f"{lo:.1f}" == f"{hi:.1f}" else f"{lo:.1f}x to {hi:.1f}x"
+            line += f"; {len(ml_only)} for that reason alone, at {span} the usual amount"
         out.append(line + ".")
     return out

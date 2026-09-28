@@ -1,5 +1,6 @@
 import re
 import sys
+import time
 from collections import Counter
 
 import config
@@ -118,9 +119,16 @@ def grounding_check(answer, allowed_ids, allowed_amounts):
 def main():
     df = run_detection()
     ranked = df[df.flagged].groupby("customer_id")["risk_score"].sum().sort_values(ascending=False)
-    customers = [sys.argv[1]] if len(sys.argv) > 1 else list(ranked.index[:3])
+    arg = sys.argv[1] if len(sys.argv) > 1 else None
+    if arg == "--all":
+        customers = list(ranked.index)
+    elif arg:
+        customers = [arg]
+    else:
+        customers = list(ranked.index[:3])
 
     report = []
+    scores = []
     for cid in customers:
         if cid not in ranked.index:
             print(f"{cid} has no flagged transactions.")
@@ -132,6 +140,7 @@ def main():
         facts += "\n\nWHY IT IS UNUSUAL (computed by the system):\n" + why_text
         print(f"\n{'=' * 70}\n{cid}  (total risk score {ranked[cid]}) - writing summary...\n")
 
+        start = time.time()
         answer = ask_llm(facts, system=SYSTEM_PROMPT)
         attempts = 1
         if missing_sections(answer):
@@ -144,6 +153,8 @@ def main():
         if missing:
             warnings.append(f"missing sections after {attempts} attempts: {missing}")
 
+        scores.append({"attempts": attempts, "warnings": len(warnings),
+                       "complete": not missing, "seconds": time.time() - start})
         output = (f"FLAGGED TRANSACTIONS (system data)\n{flagged_table(flagged)}\n\n"
                   f"WHY IT IS UNUSUAL (computed by the system)\n{why_text}\n\n"
                   f"ANALYST NARRATIVE (AI-drafted, verify before use)\n{answer}")
@@ -154,7 +165,15 @@ def main():
         report.append(f"## {cid} (risk score {ranked[cid]})\n\n{output}\n\n"
                       f"Checks: {'passed' if not warnings else '; '.join(warnings)}\n")
 
-    name = sys.argv[1] if len(sys.argv) > 1 else "top3"
+    name = {"--all": "all", None: "top3"}.get(arg, arg)
+    if len(scores) > 1:
+        n = len(scores)
+        print("\n=== NARRATIVE SCORECARD ===")
+        print(f"Customers:                {n}")
+        print(f"Complete (all sections):  {sum(x['complete'] for x in scores)}/{n}")
+        print(f"Passed all checks:        {sum(x['warnings'] == 0 for x in scores)}/{n}")
+        print(f"Needed a retry:           {sum(x['attempts'] == 2 for x in scores)}/{n}")
+        print(f"Average time:             {sum(x['seconds'] for x in scores) / n:.0f}s per customer")
     out_file = DATA_DIR / f"explanations_{name}.md"
     out_file.write_text("\n".join(report))
     print(f"\nSaved to {out_file}")

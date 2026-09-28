@@ -47,15 +47,22 @@ All results are on a single 17-page document and on synthetic transaction data I
 
 The correct page was retrieved for 20/20 answerable questions with both models. The instruct model is faster but gave two confidently wrong answers that the thinking model got right, so model choice here is a latency versus accuracy trade-off.
 
-**Module 2** (5,343 transactions, 12 customers with planted patterns)
+**Module 2 detector** (tuned on one dataset, then tested on 5 datasets it never saw)
 
-| Metric | Result |
-|---|---|
-| Precision | 91% |
-| Recall | 88% |
-| Suspicious customers caught (via an actual suspicious transaction) | 12/12 |
-| Innocent customers flagged | 4 |
-| Spending-spree pattern (no rule covers it), caught by ML only | 10/17 |
+| Metric | Tuning dataset | 5 unseen datasets (mean +/- std) |
+|---|---|---|
+| Precision | 91% | 92% +/- 5% |
+| Recall | 88% | 87% +/- 8% |
+| Suspicious customers caught (via an actual suspicious transaction) | 12/12 | 59/60 |
+| Innocent customers flagged | 4 | 3.4 on average |
+| Spending-spree pattern (no rule covers it), caught by ML only | 59% | 53% +/- 25% |
+
+The detector generalizes to unseen data. ML coverage of the rule-free pattern is real but unstable (15% to 81% across datasets).
+
+**Module 2 narratives** (all 16 flagged customers, qwen3:4b-instruct)
+
+- 16/16 complete, 15/16 passed automated checks, 0 retries, about 6 seconds per customer.
+- The WHY section is computed in Python and was exact in a hand review of 5 narratives. The AI-drafted summary and questions were accurate in 3 of 5 and neutral in 5 of 5.
 
 ## What I learned
 
@@ -82,7 +89,9 @@ The correct page was retrieved for 20/20 answerable questions with both models. 
     generate_transactions.py   synthetic transactions with planted patterns
     detect.py                  rules + Isolation Forest -> flags.csv
     eval_detect.py             Module 2 evaluation against the answer key
-    explain.py                 per-customer alert narratives with checks
+    explain.py                 per-customer alert narratives with checks (--all for every customer)
+    why.py                     computes the WHY IT IS UNUSUAL section from reason codes
+    multi_seed.py              tests the detector on 5 unseen random datasets
     data/policies/             regulatory PDF
     data/transactions/         generated data, flags and narratives
 
@@ -112,6 +121,8 @@ Requirements: Python 3.11+, Ollama, about 6 GB of free disk space, 8 GB+ RAM.
     python eval_detect.py
     python explain.py            # top 3 customers by risk
     python explain.py C020       # one customer
+    python explain.py --all      # every flagged customer, with a scorecard
+    python multi_seed.py         # detector robustness on 5 unseen datasets
 
 ## Limitations
 
