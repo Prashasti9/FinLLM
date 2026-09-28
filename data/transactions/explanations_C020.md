@@ -4,19 +4,16 @@ FLAGGED TRANSACTIONS (system data)
 - T00379 | 2026-06-07 15:11 | deposit | $1,399.54 | to SELF | US | ML_ANOMALY
 - T00899 | 2026-06-16 12:37 | deposit | $1,111.63 | to SELF | US | ML_ANOMALY
 
+WHY IT IS UNUSUAL (computed by the system)
+- 2 of 2 were rated statistically unusual by the anomaly model; 2 for that reason alone, at 2.2x to 3.6x the usual amount.
+
 ANALYST NARRATIVE (AI-drafted, verify before use)
-SUMMARY: Two deposits to self were flagged between 2026-06-07 and 2026-06-16, each exceeding the customer’s usual transaction amount by a statistically notable margin.  
+SUMMARY: Two deposits to self were flagged during a five-day period in June 2026, each exceeding the usual transaction amount by 2.2x to 3.6x, with no large outgoing transactions in the prior seven days. The model identified both as statistically unusual based on amount and frequency metrics.
 
-WHY IT IS UNUSUAL FOR THIS CUSTOMER:  
-- Both flagged transactions were deposits to self, which is uncommon for a customer with no prior history of such activity.  
-- Each transaction is significantly above the median usual amount ($437.66), with one being 3.6x and the other 2.2x that amount.  
-- The transactions occurred during non-peak hours (after 3pm), and there were no large outgoing transactions in the 7 days prior to either.  
-- Both transactions were flagged solely by the ML_ANOMALY model, indicating statistical deviation without other behavioral indicators.  
-
-OPEN QUESTIONS FOR THE ANALYST:  
-- What is the customer’s typical behavior around deposits to self, and is this pattern consistent with known activity?  
-- Are there any known account changes, such as a new account or product setup, that could explain the deposit activity?  
-- Could the flagged transactions be part of a larger pattern of activity that has not yet been detected?  
+OPEN QUESTIONS FOR THE ANALYST:
+- What is the customer’s typical behavior regarding deposits to self, and is this pattern consistent with known activity?
+- Are there any known account changes, such as new beneficiaries or account access, that could explain the deposits?
+- Why did the anomaly model flag both transactions despite no outgoing activity or recent activity in the past seven days?
 
 Decision: requires analyst review.
 

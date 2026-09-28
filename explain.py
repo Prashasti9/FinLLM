@@ -5,6 +5,7 @@ from collections import Counter
 import config
 from llm import ask_llm
 from detect import load, add_features, apply_rules, apply_ml
+from why import why_bullets
 
 DATA_DIR = config.BASE_DIR / "data" / "transactions"
 
@@ -22,19 +23,17 @@ REASON_TEXT = {
 }
 
 # The flagged-transaction list is printed by Python, so the LLM writes only these sections
-REQUIRED = ["SUMMARY:", "WHY IT IS UNUSUAL", "OPEN QUESTIONS", "Decision:"]
+REQUIRED = ["SUMMARY:", "OPEN QUESTIONS", "Decision:"]
 
 SYSTEM_PROMPT = """You are FinLLM, assisting a bank AML analyst. Write an alert narrative using ONLY the facts provided.
 Rules:
 1. Refer to transactions by ID (e.g. T04800). Do not copy or list the transaction details; they are shown to the analyst separately.
 2. Use amounts, dates and counts exactly as written in the facts. Do not round, count, add up or calculate anything yourself.
-3. Only call something unusual if the facts show it (for example a ratio to the usual amount, or the history counts provided).
+3. The WHY IT IS UNUSUAL bullets were computed by the system and are correct. Base your summary on them and do not add other reasons.
 4. Do NOT say the customer committed fraud, money laundering or any crime, and do not guess motives.
 5. If a transaction's only reason is ML_ANOMALY, say the model found it statistically unusual and name the metrics that stand out.
 Format exactly:
 SUMMARY: one or two sentences.
-WHY IT IS UNUSUAL FOR THIS CUSTOMER:
-- two to four bullets
 OPEN QUESTIONS FOR THE ANALYST:
 - two or three bullets
 Decision: requires analyst review."""
@@ -127,6 +126,10 @@ def main():
             print(f"{cid} has no flagged transactions.")
             continue
         facts, flagged, ids, amounts = customer_facts(df, cid)
+        hist = df[df.customer_id == cid]
+        baseline = hist[~hist.flagged] if (~hist.flagged).any() else hist
+        why_text = "\n".join(f"- {b}" for b in why_bullets(flagged, baseline, baseline.amount.median()))
+        facts += "\n\nWHY IT IS UNUSUAL (computed by the system):\n" + why_text
         print(f"\n{'=' * 70}\n{cid}  (total risk score {ranked[cid]}) - writing summary...\n")
 
         answer = ask_llm(facts, system=SYSTEM_PROMPT)
@@ -142,6 +145,7 @@ def main():
             warnings.append(f"missing sections after {attempts} attempts: {missing}")
 
         output = (f"FLAGGED TRANSACTIONS (system data)\n{flagged_table(flagged)}\n\n"
+                  f"WHY IT IS UNUSUAL (computed by the system)\n{why_text}\n\n"
                   f"ANALYST NARRATIVE (AI-drafted, verify before use)\n{answer}")
         print(output)
         print(f"\nCHECKS (attempts: {attempts}):", "passed" if not warnings else "")
